@@ -1,0 +1,48 @@
+%# Copyright (c) 2009 REN-ISAC and The Trustees of Indiana University
+%# 
+%# (Except where explictly superceded by other copyright notices)
+%# 
+%# This work is made available to you under the terms of Version 2 of
+%# the GNU General Public License. A copy of that license should have
+%# been provided with this software, but in any event can be snarfed
+%# from www.gnu.org
+%# 
+%# This work is distributed in the hope that it will be useful, but
+%# WITHOUT ANY WARRANTY; without even the implied warranty of
+%# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+%# General Public License for more details.
+%# 
+%# 
+%# Unless otherwise specified, all modifications, corrections or
+%# extensions to this work which alter its source code become the
+%# property of Best Practical Solutions, LLC when submitted for
+%# inclusion in the work.
+
+<%INIT>
+use RT::Ticket;
+use RT::CustomFields;
+use XML::IODEF;
+my $xml = XML::IODEF->new();
+
+my $Ticket = RT::Ticket->new($session{'CurrentUser'});
+$Ticket->Load($ARGS{'id'});
+
+if($ARGS{'initial'}){
+    $xml->in($Ticket->FirstCustomFieldValue('Initial Incident Data'));
+} else {
+    $xml->in($Ticket->IODEF);
+}
+
+$r->content_type('application/xml');
+my $x = $xml->out();
+
+# at least firefox doesn't like it when this is on the top of the page.
+$x =~ s/<\?xml version=\"1.0\" encoding=\"UTF-8\"\?>//;
+
+$m->out($x);
+$m->abort();
+</%INIT>
+<%ARGS>
+$id => undef
+$initial => undef
+</%ARGS>

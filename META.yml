@@ -1,0 +1,21 @@
+---
+abstract: 'RT IODEF Extension'
+author:
+  - 'Barely3am Solutions <saxjazman@cpan.org>'
+distribution_type: module
+generated_by: 'Module::Install version 0.76'
+license: 'GPL Version 2'
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: RT-IODEF
+no_index:
+  directory:
+    - etc
+    - html
+    - po
+    - var
+    - inc
+requires:
+  XML::IODEF: 0
+version: 0.02_1

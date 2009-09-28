@@ -1,0 +1,16 @@
+DETAILS
+
+This module takes in and processes IODEF XML objects (pgp helps compress the xml FYI, keeps SMTP from breaking it up with \n's) and maps them to customfields who's description matches _IODEF_... (see etc/initialdata for an included example).
+
+INSTALLATION
+
+1. #> perl Makefile.PL
+2. #> make
+3. #> make install
+4. #> make initdb
+5. #> vi /opt/rt3/etc/RT_SiteConfig.pm
+
+Set(@Plugins,(qw(RT::IODEF)));
+
+6. #> patch /usr/local/share/perl/5.10.0/XML/IODEF.pm etc/IODEF.pm_ext.patch
+7. #> /etc/init.d/httpd reload

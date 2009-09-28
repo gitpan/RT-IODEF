@@ -1,0 +1,14 @@
+--- IODEF.pm.orig	2009-06-03 14:49:07.000000000 +0000
++++ IODEF.pm	2009-06-03 15:01:49.000000000 +0000
+@@ -456,8 +456,9 @@
+ 	ATTRIBUTES  => { "ident"     => [], "vlan-num"  => [], "vlan-name" => [],
+ 			 "category"  => [ "unknown", "atm", "e-mail", "lotus-notes", "mac", "sna",
+ 					  "vm", "ipv4-addr", "ipv4-addr-hex", "ipv4-net", "ipv4-net-mask",
+-					  "ipv6-addr", "ipv6-addr-hex", "ipv6-net", "ipv6-net-mask" ],
+-		       },
++					  "ipv6-addr", "ipv6-addr-hex", "ipv6-net", "ipv6-net-mask", "ext-value" ],
++		       	"ext-category"	=> [],
++			},
+ 	CHILDREN    => [ "1address", "?netmask" ],
+     },
+ 

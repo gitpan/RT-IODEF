@@ -1,0 +1,12 @@
+Changes
+
+2009-09-28 - v0.02_1
+    - cleaned up licence for cpan release
+    - removed IR dependancy
+
+2009-06-02 - v0.01_2
+	- Split from RT-SES trunk
+	- Cleaned up a bunch of code
+
+2009-04-05 - v0.01_1
+	- Initial Release

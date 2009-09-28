@@ -1,0 +1,30 @@
+@Initial = (sub{ return 1; });
+
+@CustomFields = (
+	{
+		Name		=> 'Incident Address',
+		Type		=> 'FreeformSingle',
+		Queue		=> [ 'Incident Reports', 'Incidents' ],
+		Disabled	=> 0,
+		Description	=> '_IODEF_IncidentIncidentDataEventDataSystemNodeAddressaddress',
+	},
+);
+
+@ScripActions = (
+	{
+		Name		=> 'IODEF ProcessMessage',
+		Description	=> 'IODEF_ProcessMessage',
+		ExecModule	=> 'IODEF_ProcessMessage',
+	},
+);
+
+@Scrips = (
+	{
+		Description	=> 'zIODEF_ProcessMessage',
+		Queue		=> ['Incident Reports', 'Incidents' ],
+		ScripCondition	=> 'On Create',
+		ScripAction	=> 'IODEF ProcessMessage',
+		Template	=> 'Blank',
+	},
+);
+1;

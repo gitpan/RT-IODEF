@@ -1,5 +1,9 @@
 Changes
 
+2010-02-04 - v0.03_1
+    - migrated to 2007 RFC 5070 (official release)
+    - fixed an RT::IR dep
+
 2009-09-28 - v0.02_1
     - cleaned up licence for cpan release
     - removed IR dependancy

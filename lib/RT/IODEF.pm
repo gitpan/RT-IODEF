@@ -18,14 +18,14 @@
 # 02110-1301 or visit their web page on the internet at
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.html.
 #
-# Author saxjazman@cpan.org (with the help of BestPractical.com)
+# Author wes@barely3am.com (with the help of BestPractical.com)
 #
 # [1] http://www.ren-isac.net
 # [2] http://www.indiana.edu
 
 package RT::IODEF;
 
-our $VERSION = '0.02_1';
+our $VERSION = '0.03_1';
 
 use warnings;
 use strict;
@@ -50,35 +50,27 @@ sub IODEF {
 		my $field = $cf->Description();
 		$field =~ s/_IODEF_//g;
 		my $val = $ticket->FirstCustomFieldValue($cf->Name());
-		## TODO -- what happens when we forget the address category?
-		if($field eq 'IncidentIncidentDataEventDataSystemNodeAddressaddress'){
-			unless($ticket->FirstCustomFieldValue('Incident Address Category')){
-				my $c = RT::CustomField->new($self->CurrentUser());
-				$c->Load('Incident Address Category');
-				$ticket->AddCustomFieldValue(Field => $c, Value => 'unknown');
-			}
-		}
+        next if($field =~ /Addresscategory$/);
 		if($val){
 			# shim for handling ext-categories
-			if($field =~ /Addresscategory$/){
-				eval { $xml->add($field,$val) };
+			if($field =~ /EventDataFlowSystemNodeAddress$/){
+                $xml->add($field,$val);
+                my $cat = $ticket->FirstCustomFieldValue('Incident Address Category'); ## todo -- this doesn't scale well fix it
+				eval { $xml->add('IncidentEventDataFlowSystemNodeAddresscategory',$cat) };
 				# shim, if there is a non-enumuerated category, use the ext-cat option
 				if($@){
-					#$RT::Logger->debug($@);
 					$RT::Logger->debug('adding as ext-value');
 					$xml->add($field,'ext-value');
-					$xml->add('IncidentIncidentDataEventDataSystemNodeAddressext-category',$val);
+					$xml->add('IncidentEventDataFlowSystemNodeAddressext-category',$val);
 				}
 			} elsif($field =~ /Addresscidr$/){
-				$xml->add('IncidentIncidentDataEventDataSystemNodeAddresscategory','ipv4-net');
-				#$xml->add('IncidentIncidentDataEventDataSystemNodeAddressext-category','ipv4-net');
-				$xml->add('IncidentIncidentDataEventDataSystemNodeAddressaddress',$val);
+				$xml->add('IncidentEventDataFlowSystemNodeAddresscategory','ipv4-net');
+				$xml->add('IncidentEventDataFlowSystemNodeAddress',$val);
 			} elsif($field =~ /Addressasn$/){
-				$xml->add('IncidentIncidentDataEventDataSystemNodeAddresscategory','ext-value');
-                                $xml->add('IncidentIncidentDataEventDataSystemNodeAddressext-category','asn');
-                                $xml->add('IncidentIncidentDataEventDataSystemNodeAddressaddress',$val);
+				$xml->add('IncidentEventDataFlowSystemNodeAddresscategory','asn');
+                $xml->add('IncidentEventDataFlowSystemNodeAddress',$val);
 			} else {
-				$xml->add($field,$val);
+				eval { $xml->add($field,$val) };
 			}
 		}
 	}
@@ -89,7 +81,7 @@ sub IODEF {
 
 eval "require RT::IODEF_Vendor";
 die $@ if ($@ && $@ !~ qr{^Can't locate RT/IODEF_Vendor.pm});
-eval "require RT::IR::IODEF_Local";
+eval "require RT::IODEF_Local";
 die $@ if ($@ && $@ !~ qr{^Can't locate RT/IODEF_Local.pm});
 
 1;

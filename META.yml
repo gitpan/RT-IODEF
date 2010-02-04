@@ -1,7 +1,7 @@
 ---
 abstract: 'RT IODEF Extension'
 author:
-  - 'Barely3am Solutions <saxjazman@cpan.org>'
+  - 'Barely3am Solutions <wes@barely3am.com>'
 distribution_type: module
 generated_by: 'Module::Install version 0.76'
 license: 'GPL Version 2'
@@ -18,4 +18,4 @@ no_index:
     - inc
 requires:
   XML::IODEF: 0
-version: 0.02_1
+version: 0.03_1

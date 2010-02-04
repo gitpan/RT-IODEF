@@ -18,7 +18,7 @@
 # 02110-1301 or visit their web page on the internet at
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.html.
 #
-# Author saxjazman@cpan.org (with the help of BestPractical.com)
+# Author wes@barely3am.com (with the help of BestPractical.com)
 #
 # [1] http://www.ren-isac.net
 # [2] http://www.indiana.edu

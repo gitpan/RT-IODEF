@@ -6,7 +6,7 @@
 		Type		=> 'FreeformSingle',
 		Queue		=> [ 'Incident Reports', 'Incidents' ],
 		Disabled	=> 0,
-		Description	=> '_IODEF_IncidentIncidentDataEventDataSystemNodeAddressaddress',
+		Description	=> '_IODEF_IncidentEventDataFlowSystemNodeAddress',
 	},
 );
 

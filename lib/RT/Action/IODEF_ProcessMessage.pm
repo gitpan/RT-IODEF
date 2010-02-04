@@ -18,7 +18,7 @@
 # 02110-1301 or visit their web page on the internet at
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.html.
 #
-# Author saxjazman@cpan.org (with the help of BestPractical.com)
+# Author wes@barely3am.com (with the help of BestPractical.com)
 #
 # [1] http://www.ren-isac.net
 # [2] http://www.indiana.edu
@@ -65,7 +65,7 @@ sub Commit {
 		# the description field holds the IODEF field name
 		my $field = $cf->Description();
 		$field =~ s/^_IODEF_//g;
-		my $val = eval { $iodef->get($field)};
+		my $val = eval { $iodef->get($field) };
 		next if($@);
 		if($val){
 			if($val eq 'ext-value'){

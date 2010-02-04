@@ -18,7 +18,7 @@
 # 02110-1301 or visit their web page on the internet at
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.html.
 #
-# Author saxjazman@cpan.org (with the help of BestPractical.com)
+# Author wes@barely3am.com (with the help of BestPractical.com)
 #
 # [1] http://www.ren-isac.net
 # [2] http://www.indiana.edu
@@ -42,22 +42,10 @@ sub IsIODEF {
 	
 	$RT::Logger->debug('Checking to see if its an IODEF Document');
 	
-	return(0) unless($content =~ /<\?xml.*>\n<!DOCTYPE IODEF-Document PUBLIC.*/);
-	return(0) unless($content =~ /<\/IODEF-Document>/);
-	
 	$RT::Logger->debug($content);
 	
-	$content =~ s/\n/ /g;
-	$content =~ m/(<IODEF-Document version="1.0">.*<\/IODEF-Document>)/;
-	
-	my $iodef_msg = $1;
-	
-	$RT::Logger->debug('IODEF CONTENT: '.$iodef_msg);
-	
-	$RT::Logger->debug('appears to be, lets test');
-	
 	my $iodef = XML::IODEF->new();
-	$iodef->in($iodef_msg);
+	$iodef->in($content);
 	
 	unless($iodef->out()){
 		$RT::Logger->error('This is not a properly formatted IODEF doc');

@@ -2,7 +2,7 @@ use inc::Module::Install;
 
 RTx('RT-IODEF');
 license('GPL Version 2');
-author('Barely3am Solutions <saxjazman@cpan.org>');
+author('Barely3am Solutions <wes@barely3am.com>');
 version_from('lib/RT/IODEF.pm');
 
 { # check RT version

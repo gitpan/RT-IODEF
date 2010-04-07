@@ -25,7 +25,7 @@
 
 package RT::IODEF;
 
-our $VERSION = '0.03_1';
+our $VERSION = '0.03';
 
 use warnings;
 use strict;
@@ -46,6 +46,11 @@ sub IODEF {
 	$cfs->Limit(FIELD => 'Description', VALUE => '_IODEF_Incident', OPERATOR => 'LIKE');
 	return(undef) unless($cfs->Count());
 
+    $xml->add('IncidentIncidentIDname',RT->Config->Get('Organization'));
+    $xml->add('IncidentIncidentIDinstance',RT->Config->Get('rtname'));
+    $xml->add('IncidentIncidentID',$ticket->Id());
+
+    $xml->add('IncidentReportTime',$self->CreatedObj->AsString());
 	while(my $cf = $cfs->Next()){
 		my $field = $cf->Description();
 		$field =~ s/_IODEF_//g;
@@ -55,7 +60,7 @@ sub IODEF {
 			# shim for handling ext-categories
 			if($field =~ /EventDataFlowSystemNodeAddress$/){
                 $xml->add($field,$val);
-                my $cat = $ticket->FirstCustomFieldValue('Incident Address Category'); ## todo -- this doesn't scale well fix it
+                my $cat = $ticket->FirstCustomFieldValue('Address category'); ## todo -- this doesn't scale well fix it
 				eval { $xml->add('IncidentEventDataFlowSystemNodeAddresscategory',$cat) };
 				# shim, if there is a non-enumuerated category, use the ext-cat option
 				if($@){
@@ -68,13 +73,13 @@ sub IODEF {
 				$xml->add('IncidentEventDataFlowSystemNodeAddress',$val);
 			} elsif($field =~ /Addressasn$/){
 				$xml->add('IncidentEventDataFlowSystemNodeAddresscategory','asn');
+                if($val =~ /(\d+)\s\S+/){ $val = $1; }
                 $xml->add('IncidentEventDataFlowSystemNodeAddress',$val);
 			} else {
 				eval { $xml->add($field,$val) };
 			}
 		}
 	}
-	
 	return($xml->out());
 }	
 	

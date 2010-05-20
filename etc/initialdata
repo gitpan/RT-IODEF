@@ -1,15 +1,5 @@
 @Initial = (sub{ return 1; });
 
-@CustomFields = (
-	{
-		Name		=> 'Incident Address',
-		Type		=> 'FreeformSingle',
-		Queue		=> [ 'Incident Reports', 'Incidents' ],
-		Disabled	=> 0,
-		Description	=> '_IODEF_IncidentEventDataFlowSystemNodeAddress',
-	},
-);
-
 @ScripActions = (
 	{
 		Name		=> 'IODEF ProcessMessage',

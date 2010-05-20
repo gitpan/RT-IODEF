@@ -43,6 +43,7 @@ sub IsIODEF {
 	$RT::Logger->debug('Checking to see if its an IODEF Document');
 	
 	$RT::Logger->debug($content);
+    return unless($content =~ /^<IODEF-Document .*/);
 	
 	my $iodef = XML::IODEF->new();
 	$iodef->in($content);

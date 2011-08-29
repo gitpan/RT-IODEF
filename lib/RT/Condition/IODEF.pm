@@ -18,7 +18,7 @@
 # 02110-1301 or visit their web page on the internet at
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.html.
 #
-# Author wes@barely3am.com (with the help of BestPractical.com)
+# Author saxjazman@cpan.org (with the help of BestPractical.com)
 #
 # [1] http://www.ren-isac.net
 # [2] http://www.indiana.edu
@@ -33,27 +33,27 @@ use base 'RT::Condition::Generic';
 use XML::IODEF;
 
 sub IsIODEF {
-	my $self = shift;
-	my $content = shift;
-	unless($content){
-		$content = $self->TransactionObj->Content();
-	}
-	return(undef) unless($content);
-	
-	$RT::Logger->debug('Checking to see if its an IODEF Document');
-	
-	$RT::Logger->debug($content);
-    return unless($content =~ /^<IODEF-Document .*/);
-	
-	my $iodef = XML::IODEF->new();
-	$iodef->in($content);
-	
-	unless($iodef->out()){
-		$RT::Logger->error('This is not a properly formatted IODEF doc');
-		return(undef);
-	}
-	$RT::Logger->debug('Properly formatted IODEF doc');
-	return($iodef);	
+        my $self = shift;
+        my $content = shift;
+        unless($content){
+                $content = $self->TransactionObj->Content();
+        }
+        return(undef) unless($content);
+
+        $RT::Logger->debug('Checking to see if its an IODEF Document');
+
+        $RT::Logger->debug($content);
+        return unless($content =~/^<\?xml version="1.0" encoding="UTF-8"\?>\n<IODEF-Document*/);
+
+        my $iodef = XML::IODEF->new();
+        $iodef->in($content);
+
+        unless($iodef->out()){
+                $RT::Logger->error('This is not a properly formatted IODEF doc');
+                return(undef);
+        }
+        $RT::Logger->debug('Properly formatted IODEF doc');
+        return($iodef);
 }
 
 1;

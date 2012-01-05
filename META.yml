@@ -2,9 +2,13 @@
 abstract: 'RT IODEF Extension'
 author:
   - 'Barely3am Solutions <wes@barely3am.com>'
+build_requires:
+  ExtUtils::MakeMaker: 6.42
+configure_requires:
+  ExtUtils::MakeMaker: 6.42
 distribution_type: module
-generated_by: 'Module::Install version 0.76'
-license: 'GPL Version 2'
+generated_by: 'Module::Install version 1.00'
+license: gpl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: 1.4
@@ -13,9 +17,9 @@ no_index:
   directory:
     - etc
     - html
-    - po
-    - var
     - inc
 requires:
-  XML::IODEF: 0
-version: 0.05
+  XML::IODEF::Simple: 0.01
+resources:
+  license: http://opensource.org/licenses/gpl-license.php
+version: 0.06

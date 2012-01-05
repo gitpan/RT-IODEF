@@ -1,5 +1,8 @@
 Changes
 
+2012-01-05  - v0.06
+    - cleaned up to work with XML::IODEF::Simple
+
 2010-02-04 - v0.03_1
     - migrated to 2007 RFC 5070 (official release)
     - fixed an RT::IR dep

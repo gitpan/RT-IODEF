@@ -36,7 +36,7 @@ sub Prepare {
 	my $self = shift;
 	return(undef) unless($self->TransactionObj->ContentObj() && $self->TransactionObj->ContentObj()->Id()); # unless there is an attachment
 	my $cond = RT::Condition::IODEF->new(
-		CurrentUser		=> $self->CurrentUser(),
+	    CurrentUser		=> $self->CurrentUser(),
 		TicketObj		=> $self->TicketObj(),
 		TransactionObj	=> $self->TransactionObj(),
 	);
@@ -49,7 +49,14 @@ sub Prepare {
 sub Commit {
 	my $self = shift;
 	my $iodef = $self->Argument();
-	
+    my $iHash = $iodef->to_tree();
+
+    # right now we only support 1 incident per message
+    ## TODO support multiple incidents via 1 msg
+    if(ref($iHash->{'Incident'}) eq 'ARRAY'){
+        $iHash->{'Incident'} = $iHash->{'Incident'}[0];
+    }
+
 	my $Ticket = $self->TicketObj();
 	
 	# get a list of the _IODEF_Incident custom fields in our Queue
@@ -62,19 +69,48 @@ sub Commit {
 	# out of the IODEF document
 	while (my $cf = $cfs->Next()){
 		$RT::Logger->debug('Field: '.$cf->Name());
+        #next if($cf->Name =~ /Constituency$/);
 		# the description field holds the IODEF field name
 		my $field = $cf->Description();
 		$field =~ s/^_IODEF_//g;
-		my $val = eval { $iodef->get($field) };
-		next if($@);
-		if($val){
-			if($val eq 'ext-value'){
-				$field =~ s/category$/ext-category/;
-				$val = $iodef->get($field);
-			}
-			$self->TicketObj->AddCustomFieldValue(Field => $cf, Value => $val);
-		}
+        my $val;
+        if($field =~ /^IncidentAdditionalData(\S+)$/){
+            my $meaning = $1;
+            my $ad = $iHash->{'Incident'}->{'AdditionalData'};
+            next unless($ad);
+            my @array;
+            if(ref($ad) eq 'ARRAY'){
+                @array = @$ad;
+            } else {
+                push(@array,$ad);
+            }
+            my @vals;
+            foreach my $a (@array){
+                for(lc($a->{'meaning'})){
+                    next unless(/$meaning/);
+                    $RT::Logger->debug('Value: '.$a->{'content'});
+                    $self->TicketObj->AddCustomFieldValue(Field => $cf, Value => $a->{'content'});
+                }
+            }
+        } else {
+		    $val = eval { $iodef->get($field) };
+	        $self->TicketObj->AddCustomFieldValue(Field => $cf, Value => $val) if($val);
+        }
 	}
+    if(my $h = $iHash->{'Incident'}->{'History'}->{'HistoryItem'}){
+        my @history = (ref($h) eq 'ARRAY') ? @$h : [$h];
+        foreach (@history){
+            my $mime = MIME::Entity->build(
+                From    => $_->{'Contact'}->{'Email'} || 'Nobody',
+                Data    => $_->{'Description'},
+                Date    => $_->{'DateTime'},
+            );
+            $Ticket->Comment(MIMEObj => $mime);
+        }
+    }
+    unless($Ticket->Subject()){
+        $Ticket->SetSubject($iHash->{'Incident'}->{'Description'}) if($iHash->{'Incident'}->{'Description'});
+    }
 	
 	$RT::Logger->debug('Success: '.__PACKAGE__);
 	return(1);

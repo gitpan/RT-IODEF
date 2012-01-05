@@ -20,29 +20,28 @@
 
 <%INIT>
 use RT::Ticket;
-use RT::CustomFields;
-use XML::IODEF;
-my $xml = XML::IODEF->new();
 
 my $Ticket = RT::Ticket->new($session{'CurrentUser'});
 $Ticket->Load($ARGS{'id'});
+my $xml = $Ticket->IODEF();
 
-if($ARGS{'initial'}){
-    $xml->in($Ticket->FirstCustomFieldValue('Initial Incident Data'));
-} else {
-    $xml->in($Ticket->IODEF);
-}
-
-$r->content_type('application/xml');
-my $x = $xml->out();
 
 # at least firefox doesn't like it when this is on the top of the page.
-$x =~ s/<\?xml version=\"1.0\" encoding=\"UTF-8\"\?>//;
+#$xml =~ s/<\?xml version=\"1.0\" encoding=\"UTF-8\"\?>//;
 
-$m->out($x);
+if($json){
+    require JSON;
+    $xml = JSON::to_json($xml->to_tree());
+    $r->content_type('application/json');
+} else {
+    $r->content_type('application/xml');
+    $xml = $xml->out();
+}
+$m->out($xml);
 $m->abort();
 </%INIT>
 <%ARGS>
 $id => undef
 $initial => undef
+$json => undef
 </%ARGS>

@@ -25,62 +25,132 @@
 
 package RT::IODEF;
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 use warnings;
 use strict;
 
 package RT::Ticket;
 
-use XML::IODEF;
+require XML::IODEF::Simple;
 
+## TODO -- speed this up if we can
 sub IODEF {
 	my $self = shift;
-	
-	my $ticket = $self;
-	
-	my $xml = XML::IODEF->new();
-	
+    my $tkt = $self;
+    my $inc_history = shift || 0;
+
 	my $cfs = RT::CustomFields->new($self->CurrentUser());
-	$cfs->LimitToQueue($ticket->Queue());
+	$cfs->LimitToQueue($tkt->Queue());
 	$cfs->Limit(FIELD => 'Description', VALUE => '_IODEF_Incident', OPERATOR => 'LIKE');
 	return(undef) unless($cfs->Count());
 
-    $xml->add('IncidentIncidentIDname',RT->Config->Get('Organization'));
-    $xml->add('IncidentIncidentIDinstance',RT->Config->Get('rtname'));
-    $xml->add('IncidentIncidentID',$ticket->Id());
+    my $source = $tkt->OwnerObj->EmailAddress() || $tkt->RequestorAddresses || RT->Config->Get('Organization');
+    if($source =~ /,/){
+        my @a = split(/,/,$source);
+        $source = $a[0];
+    }
 
-    $xml->add('IncidentReportTime',$self->CreatedObj->AsString());
-	while(my $cf = $cfs->Next()){
-		my $field = $cf->Description();
-		$field =~ s/_IODEF_//g;
-		my $val = $ticket->FirstCustomFieldValue($cf->Name());
-        next if($field =~ /Addresscategory$/);
-		if($val){
-			# shim for handling ext-categories
-			if($field =~ /EventDataFlowSystemNodeAddress$/){
-                $xml->add($field,$val);
-                my $cat = $ticket->FirstCustomFieldValue('Address category'); ## todo -- this doesn't scale well fix it
-				eval { $xml->add('IncidentEventDataFlowSystemNodeAddresscategory',$cat) };
-				# shim, if there is a non-enumuerated category, use the ext-cat option
-				if($@){
-					$RT::Logger->debug('adding as ext-value');
-					$xml->add($field,'ext-value');
-					$xml->add('IncidentEventDataFlowSystemNodeAddressext-category',$val);
-				}
-			} elsif($field =~ /Addresscidr$/){
-				$xml->add('IncidentEventDataFlowSystemNodeAddresscategory','ipv4-net');
-				$xml->add('IncidentEventDataFlowSystemNodeAddress',$val);
-			} elsif($field =~ /Addressasn$/){
-				$xml->add('IncidentEventDataFlowSystemNodeAddresscategory','asn');
-                if($val =~ /(\d+)\s\S+/){ $val = $1; }
-                $xml->add('IncidentEventDataFlowSystemNodeAddress',$val);
-			} else {
-				eval { $xml->add($field,$val) };
-			}
-		}
-	}
-	return($xml->out());
+    my $altid = RT->Config->Get('WebURL').'Ticket/Display.html?id='.$tkt->Id();
+    my $altid_restriction = 'private';
+    my $detecttime = $self->CreatedObj->AsString();
+
+    my $group = $tkt->FirstCustomFieldValue('Constituency') || $tkt->FirstCustomFieldValue('_RTIR_Constituency');
+    my @sharewith;
+    my $values = $tkt->CustomFieldValues('Share With');
+    my $sw = join("\n", grep { defined $_ } map { $_->Content } @{$values->ItemsArrayRef});
+
+    if($sw){
+        @sharewith = split(/\n/,$sw);
+    }
+    my @history;
+    if($inc_history){
+        my $trans = $tkt->Transactions();
+        while(my $t = $trans->Next()){
+            next unless($t->Type() eq 'Comment' || $t->Type() eq 'Create');
+            my $user = RT::User->new($self->CurrentUser());
+            $user->Load($t->Creator());
+            my $role = 'cc';
+            my $type = 'person';
+            if($tkt->OwnerObj->EmailAddress && $user->EmailAddress()){
+                $role = 'creator' if($tkt->OwnerObj->EmailAddress() eq $user->EmailAddress());
+            }
+            if($user->Name() && $user->Name() eq 'RT_System'){
+                $role = 'irt';
+                $type = 'organization';
+            }
+            my $content = $t->Content();
+            #if($content =~ /^<\?xml version.*/){
+            #    $content =~ s/\n//g;
+            #}
+            push(@history,{
+                restriction => 'private',
+                action      => 'status-new-info',
+                DateTime    => $t->CreatedAsString(),
+                IncidentID  => {
+                    content     => RT->Config->Get('WebURL').'Ticket/Display.html?id='.$tkt->Id().'#txn-'.$t->Id(),
+                    name        => RT->Config->Get('Organization'),
+                    instance    => RT->Config->Get('rtname'),
+                },
+                Contact     => {
+                    name        => $user->Name(),
+                    email       => $user->EmailAddress(),
+                    role        => $role,
+                    type        => $type,
+                },
+                Description => $content,
+            });
+        }
+        @history = reverse(@history);
+    }
+    my $restriction = $tkt->FirstCustomFieldValue('Restriction') || 'private';
+    $restriction = 'private' unless($restriction =~ /^(default|private|need-to-know|public)$/);
+
+    my $report = XML::IODEF::Simple->new({
+        guid        => $group,
+        IncidentID  => {
+            restriction => 'private',
+            name        => RT->Config->Get('Organization'),
+            instance    => RT->Config->Get('rtname'),
+            content     => RT->Config->Get('WebURL').'Ticket/Display.html?id='.$tkt->Id(),
+        },
+        alternativeid   => RT->Config->Get('WebURL').'Ticket/Display.html?id='.$tkt->Id(),
+        alternativeid_restriction   => 'private',
+        source      => $source,
+        restriction => $tkt->FirstCustomFieldValue('Restriction') || 'private',
+        sharewith   => \@sharewith,
+        description => $tkt->FirstCustomFieldValue('ReportDescription') || $tkt->Subject(),
+        impact      => $tkt->FirstCustomFieldValue('Assessment Impact'),
+        address     => $tkt->FirstCustomFieldValue('Address'),
+        protocol    => $tkt->FirstCustomFieldValue('Service Protocol'),
+        portlist    => $tkt->FirstCustomFieldValue('Service Portlist'),
+        contact     => [
+            {
+                name        => $tkt->OwnerObj->Name(),
+                email       => $tkt->OwnerObj->EmailAddress(),
+                AdditionalData  => {
+                    sector  => 'education',
+                },
+            },
+            #{
+            #    ## TODO -- RESTRICTION ?
+            #    name        => 'leo.ren-isac.net',
+            #    email       => '',
+            #    type        => 'organization',
+            #    role        => 'cc',
+            #    AdditionalData  => {
+            #        sector  => 'leo',
+            #    },
+            #},
+        ],
+        purpose                     => $tkt->FirstCustomFieldValue('Purpose'),
+        confidence                  => $tkt->FirstCustomFieldValue('Confidence'),
+        #alternativeid               => $altid,
+        #alternativeid_restriction   => $altid_restriction,
+        history                     => \@history,
+    });
+
+	return($report);
 }	
 	
 

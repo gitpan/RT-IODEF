@@ -17,7 +17,7 @@ my ($lib_path) = $INC{'RT.pm'} =~ /^(.*)[\\\/]/;
 my $local_lib_path = "$RT::LocalPath/lib";
 unshift @INC, $local_lib_path, $lib_path;
 
-requires('XML::IODEF');
+requires('XML::IODEF::Simple'   => '0.01');
 
 auto_install();
 

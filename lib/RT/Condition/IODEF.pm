@@ -43,7 +43,7 @@ sub IsIODEF {
         $RT::Logger->debug('Checking to see if its an IODEF Document');
 
         $RT::Logger->debug($content);
-        return unless($content =~/^<\?xml version="1.0" encoding="UTF-8"\?>\n<IODEF-Document*/);
+        return unless($content =~/^(<\?xml version="1.0" encoding="UTF-8"\?>\n)?<IODEF-Document.*/);
 
         my $iodef = XML::IODEF->new();
         $iodef->in($content);

@@ -1,6 +1,5 @@
 Changes
 etc/initialdata
-etc/IODEF.pm_ext.patch
 html/Callbacks/IODEF/autohandler/Default
 html/Callbacks/IODEF/RTIR/Create.html/BeforeActionList
 html/Callbacks/IODEF/RTIR/Incident/Create.html/BeforeActionList

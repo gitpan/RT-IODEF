@@ -11,7 +11,7 @@
 @Scrips = (
 	{
 		Description	=> 'zIODEF_ProcessMessage',
-		Queue		=> ['Incident Reports', 'Incidents' ],
+		Queue		=> ['General'],
 		ScripCondition	=> 'On Create',
 		ScripAction	=> 'IODEF ProcessMessage',
 		Template	=> 'Blank',

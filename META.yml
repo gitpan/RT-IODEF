@@ -19,7 +19,7 @@ no_index:
     - html
     - inc
 requires:
-  XML::IODEF::Simple: 0.01
+  XML::IODEF::Simple: 0.02
 resources:
   license: http://opensource.org/licenses/gpl-license.php
-version: 0.06
+version: 0.07

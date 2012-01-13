@@ -1,5 +1,11 @@
 Changes
 
+2012-10-13  - v0.07
+    - removed etc/initdata +IR dep
+    - cleaned up Makefile.PL a bit
+    - added warning for RT4 users that this hasn't been tested yet
+    - updated README
+
 2012-01-05  - v0.06
     - cleaned up to work with XML::IODEF::Simple
 

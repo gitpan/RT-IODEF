@@ -1,6 +1,6 @@
 DETAILS
 
-http://code.google.com/p/perl-rt-iodef/updates/list
+http://code.google.com/p/perl-xml-iodef/updates/list
 
 This module takes in and processes IODEF XML objects (pgp helps compress the xml FYI, keeps SMTP from breaking it up with \n's) and maps them to customfields who's description matches _IODEF_... (see etc/initialdata for an included example).
 
@@ -15,3 +15,13 @@ INSTALLATION
 Set(@Plugins,(qw(RT::IODEF)));
 
 6. #> /etc/init.d/httpd reload
+
+FOR USE WITH RT+IR (Incident Response Plugin)
+
+Apply the following to your 'Incident Reports' queue:
+       
+    Description => 'zIODEF_ProcessMessage'
+    Queue       => ['Incident Reports']
+    ScripCondition  => 'On Create'
+    ScripAction => 'IODEF ProcessMessage'
+    Template    => 'Blank'

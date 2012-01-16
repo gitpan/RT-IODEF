@@ -25,14 +25,56 @@
 
 package RT::IODEF;
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 use warnings;
 use strict;
 
-package RT::Ticket;
+=head1 NAME
 
+RT::IODEF - A perl module for translating RT tickets to IODEF messages and also maps IODEF to RT's Custom Fields based on their description tag
+
+=head1 SYNOPSIS
+
+  # to map the IODEF XML to a custom field, set the custom field's "description" to it's IODEF (XML::IODEF) representation of the xml path prepended with _IODEF_
+  # these will be mapped when the IODEF_ProcessMessage script runs during a TicketCreate transaction
+  # see lib/RT/Action/IODEF_ProcessMessage.pm
+
+  Description       _IODEF_IncidentDescription
+  Restriction:      _IODEF_Incidentrestriction
+  Address:          _IODEF_IncidentEventDataFlowSystemNodeAddress
+  Severity:         _IODEF_IncidentAssessmentImpactseverity
+  Impact:           _IODEF_IncidentAssessmentImpact
+  Service Protocol: _IODEF_IncidentEventDataFlowSystemServiceip_protocol
+  Service Portlist: _IODEF_IncidentEventDataFlowSystemServicePortlist
+  # and so on...
+
+  # example taken from html/IODEF/IODEF.html
+  <%INIT>
+    use RT::Ticket;
+
+    my $Ticket = RT::Ticket->new($session{'CurrentUser'});
+    $Ticket->Load($ARGS{'id'});
+    my $xml = $Ticket->IODEF();
+
+    $r->content_type('application/xml');
+    $xml = $xml->out();
+  
+    $m->out($xml);
+    $m->abort();
+  </%INIT>
+  <%ARGS>
+  $id => undef
+  </%ARGS>
+ 
+package RT::Ticket;
 require XML::IODEF::Simple;
+
+=head1 METHODS
+
+=head2 IODEF
+
+=cut
 
 ## TODO -- speed this up if we can
 sub IODEF {

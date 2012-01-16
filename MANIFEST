@@ -18,6 +18,8 @@ inc/Module/Install/RTx.pm
 inc/Module/Install/RTx/Factory.pm
 inc/Module/Install/Win32.pm
 inc/Module/Install/WriteAll.pm
+lib/perllocal.pod
+lib/RT/.IODEF.pm.swp
 lib/RT/Action/IODEF.pm
 lib/RT/Action/IODEF_ProcessMessage.pm
 lib/RT/Condition/IODEF.pm

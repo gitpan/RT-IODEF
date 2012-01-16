@@ -1,5 +1,5 @@
 ---
-abstract: 'RT IODEF Extension'
+abstract: "A perl module for translating RT tickets to IODEF messages and also maps IODEF to RT's Custom Fields based on their description tag"
 author:
   - 'Barely3am Solutions <wes@barely3am.com>'
 build_requires:
@@ -22,4 +22,4 @@ requires:
   XML::IODEF::Simple: 0.02
 resources:
   license: http://opensource.org/licenses/gpl-license.php
-version: 0.07
+version: 0.08
